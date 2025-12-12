@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"errors"
 	"fmt"
 	"html/template"
 	"log/slog"
@@ -32,11 +33,10 @@ func (nh *noteHandler) NoteList(w http.ResponseWriter, r *http.Request) {
 	t.ExecuteTemplate(w, "base", nil)
 }
 
-func (nh *noteHandler) NoteView(w http.ResponseWriter, r *http.Request) {
+func (nh *noteHandler) NoteView(w http.ResponseWriter, r *http.Request) error {
 	id := r.URL.Query().Get("id")
 	if id == "" {
-		http.Error(w, "Nota não encontrada", http.StatusNotFound)
-		return
+		return errors.New("anotação não encontrada")
 	}
 
 	files := []string{
@@ -45,10 +45,9 @@ func (nh *noteHandler) NoteView(w http.ResponseWriter, r *http.Request) {
 	}
 	t, err := template.ParseFiles(files...)
 	if err != nil {
-		http.Error(w, "Acxonteceu um erro ao execuytar essa pagina", http.StatusInternalServerError)
-		return
+		return errors.New("aconteceu um erro ao executar essa página")
 	}
-	t.ExecuteTemplate(w, "base", id)
+	return t.ExecuteTemplate(w, "base", id)
 
 }
 
