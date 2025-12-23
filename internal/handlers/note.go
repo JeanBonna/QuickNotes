@@ -6,6 +6,8 @@ import (
 	"html/template"
 	"log/slog"
 	"net/http"
+
+	"github.com/jeanbonna/quicknotes/internal/apperror"
 )
 
 type noteHandler struct{}
@@ -36,7 +38,11 @@ func (nh *noteHandler) NoteList(w http.ResponseWriter, r *http.Request) {
 func (nh *noteHandler) NoteView(w http.ResponseWriter, r *http.Request) error {
 	id := r.URL.Query().Get("id")
 	if id == "" {
-		return errors.New("anotação não encontrada")
+		return apperror.WithStatus(errors.New("anotação é obrigatoria"), http.StatusBadRequest)
+	}
+
+	if id == "0" {
+		return apperror.WithStatus(errors.New("anotação 0 não foi encontrada"), http.StatusNotFound)
 	}
 
 	files := []string{
